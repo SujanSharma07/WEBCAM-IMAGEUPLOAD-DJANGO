@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Home{% endblock %}
+
+{% block body %}
+<style>
+    .container {
+        position: absolute;
+        padding: 1rem;
+        margin: 1rem;
+        background-color: lightgray;
+        left: 15%;
+        width: 85%;
+        top: 25%;
+
+    }
+</style>
+<div class="container">
+    <a class='btn btn-link my-4' href="{% url 'all' %}">Check Saved Data</a>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        Name:
+        <input type='text' name='name' id='id_name' class='form-control'>
+
+        File:
+        <input type="file" name="files" required="" id="id_files" class='form-control'>
+        Image:
+        <button type='button' class='btn btn-sm btn-primary my-2' onclick="displaycam()">Use Webcam</button>
+        <div id="camera" style="height:auto;width:auto; text-align:left; border:2px solid green;" hidden>
+        </div>
+        <input type="button" value="Take a Snap" id="btPic" onclick="takeSnapShot()" hidden />
+        <div id='results'></div>
+
+        <button type="submit" class="btn btn-sm btn-success m-2" onclick='form_submit()'>Submit</button>
+    </form>
+
+
+</div>
+<script>
+
+    function form_submit() {
+        takeSnapShot();
+    }
+    function displaycam() {
+        document.getElementById('camera').hidden = '';
+        document.getElementById('btPic').hidden = '';
+
+
+    }
+    // CAMERA SETTINGS.
+    Webcam.set({
+        width: 220,
+        height: 190,
+        image_format: 'jpeg',
+        jpeg_quality: 100
+    });
+    Webcam.attach('#camera');
+
+    // TAKE A SNAPSHOT.
+    takeSnapShot = function () {
+        Webcam.snap(function (data_uri) {
+            var name = document.getElementById('id_name').value;
+            document.getElementById('results').innerHTML =
+                '<img src="' + data_uri + '"/>';
+            Webcam.upload(data_uri, "/saveimage/?name=" + name, function (code, text) {
+                console.log('Save successfully');
+                //console.log(text);
+            });
+
+
+
+        });
+    }
+
+</script>
+
+
+
+
+
+
+{% endblock %}
